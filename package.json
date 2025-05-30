@@ -1,0 +1,121 @@
+{
+  "name": "find-all-references",
+  "icon": "images/dog.png",
+  "displayName": "Wooref",
+  "description": "Quickly find all references of symbols and files with intuitive hover links and CodeLens, similar to WebStorm experience",
+  "version": "1.0.0",
+  "publisher": "Asea",
+  "author": {
+    "name": "Asea",
+    "email": "569389750@qq.com"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/AAAAsea/find-all-reference#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AAAAsea/find-all-reference.git"
+  },
+  "bugs": {
+    "url": "https://github.com/AAAAsea/find-all-reference/issues"
+  },
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "Other",
+    "Programming Languages"
+  ],
+  "keywords": [
+    "references",
+    "find",
+    "webstorm",
+    "typescript",
+    "javascript",
+    "vue",
+    "hover",
+    "codelens",
+    "navigation",
+    "refactoring"
+  ],
+  "galleryBanner": {
+    "color": "#1e1e1e",
+    "theme": "dark"
+  },
+  "activationEvents": [
+    "onLanguage:typescript",
+    "onLanguage:javascript",
+    "onLanguage:typescriptreact",
+    "onLanguage:javascriptreact",
+    "onLanguage:vue"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "findAllReferences.findReferences",
+        "title": "Find All References",
+        "icon": "$(references)"
+      },
+      {
+        "command": "findAllReferences.findFileReferences",
+        "title": "Find File References",
+        "icon": "$(references)"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "findAllReferences.findReferences",
+        "key": "ctrl+alt+f12",
+        "mac": "cmd+alt+f12",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "findAllReferences.findFileReferences",
+        "key": "ctrl+shift+f12",
+        "mac": "cmd+shift+f12",
+        "when": "editorTextFocus"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "findAllReferences.findFileReferences",
+          "when": "editorTextFocus",
+          "group": "navigation"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Find All References",
+      "properties": {
+        "findAllReferences.supportedLanguages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "typescript",
+            "javascript",
+            "typescriptreact",
+            "javascriptreact",
+            "vue"
+          ],
+          "description": "List of supported language types for finding references"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "build": "vsce package",
+    "publish": "vsce publish"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.74.0",
+    "@types/node": "16.x",
+    "typescript": "^4.9.4",
+    "@vscode/vsce": "^2.22.0"
+  }
+}
