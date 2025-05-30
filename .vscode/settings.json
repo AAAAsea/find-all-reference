@@ -1,2 +1,14 @@
 {
+  "editor.codeLens": true,
+  "typescript.referencesCodeLens.enabled": true,
+  "javascript.referencesCodeLens.enabled": true,
+  "findAllReferences.enableCodeLens": true,
+  "findAllReferences.enableHover": true,
+  "findAllReferences.supportedLanguages": [
+    "typescript",
+    "javascript",
+    "typescriptreact",
+    "javascriptreact",
+    "vue"
+  ]
 }

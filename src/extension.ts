@@ -32,21 +32,43 @@ export function activate(context: vscode.ExtensionContext) {
         await findFileReferences();
     });
 
-    // 注册 Hover Provider - 在符号上悬停时显示查找引用选项
-    const hoverProvider = vscode.languages.registerHoverProvider(
-        getSupportedLanguages().map(lang => ({ language: lang })),
-        new FindReferencesHoverProvider()
-    );
+    const subscriptions = [disposable1, disposable2];
 
-    // 注册 CodeLens Provider - 在文件开头显示查找文件引用选项
-    const codeLensProvider = vscode.languages.registerCodeLensProvider(
-        getSupportedLanguages().map(lang => ({ language: lang })),
-        new FindFileReferencesCodeLensProvider()
-    );
+    // 根据配置决定是否注册 Hover Provider
+    const config = vscode.workspace.getConfiguration('findAllReferences');
+    const enableHover = config.get<boolean>('enableHover', true);
+    const enableCodeLens = config.get<boolean>('enableCodeLens', true);
+
+    outputChannel.appendLine(`配置 - Hover: ${enableHover}, CodeLens: ${enableCodeLens}`);
+
+    if (enableHover) {
+        // 注册 Hover Provider - 在符号上悬停时显示查找引用选项
+        const hoverProvider = vscode.languages.registerHoverProvider(
+            getSupportedLanguages().map(lang => ({ language: lang })),
+            new FindReferencesHoverProvider()
+        );
+        subscriptions.push(hoverProvider);
+        outputChannel.appendLine('✅ Hover Provider 已注册');
+    } else {
+        outputChannel.appendLine('❌ Hover Provider 已禁用');
+    }
+
+    if (enableCodeLens) {
+        // 注册 CodeLens Provider - 在文件开头显示查找文件引用选项
+        const codeLensProvider = vscode.languages.registerCodeLensProvider(
+            getSupportedLanguages().map(lang => ({ language: lang })),
+            new FindFileReferencesCodeLensProvider()
+        );
+        subscriptions.push(codeLensProvider);
+        outputChannel.appendLine('✅ CodeLens Provider 已注册');
+    } else {
+        outputChannel.appendLine('❌ CodeLens Provider 已禁用');
+    }
 
     outputChannel.appendLine('所有命令和提供者已注册完成');
 
-    context.subscriptions.push(disposable1, disposable2, hoverProvider, codeLensProvider, outputChannel);
+    subscriptions.push(outputChannel);
+    context.subscriptions.push(...subscriptions);
 }
 
 /**
@@ -119,25 +141,58 @@ class FindFileReferencesCodeLensProvider implements vscode.CodeLensProvider {
         document: vscode.TextDocument,
         token: vscode.CancellationToken
     ): vscode.CodeLens[] | Thenable<vscode.CodeLens[]> {
+        outputChannel.appendLine(`=== CodeLens Provider 被调用 ===`);
+        outputChannel.appendLine(`文件: ${document.fileName}`);
+        outputChannel.appendLine(`语言: ${document.languageId}`);
+        outputChannel.appendLine(`文件行数: ${document.lineCount}`);
+
         // 检查是否为支持的语言
         const supportedLanguages = getSupportedLanguages();
+        outputChannel.appendLine(`支持的语言: ${supportedLanguages.join(', ')}`);
+
         if (!supportedLanguages.includes(document.languageId)) {
-            outputChannel.appendLine(`语言 "${document.languageId}" 不在支持列表中，跳过CodeLens`);
+            outputChannel.appendLine(`❌ 语言 "${document.languageId}" 不在支持列表中，跳过CodeLens`);
             return [];
         }
 
-        outputChannel.appendLine(`为文件 "${document.fileName}" 提供CodeLens`);
+        outputChannel.appendLine(`✅ 为文件 "${document.fileName}" 提供CodeLens`);
 
         // 在文件第一行创建 CodeLens
         const topOfDocument = new vscode.Range(0, 0, 0, 0);
         const codeLens = new vscode.CodeLens(topOfDocument);
+
+        // 设置命令
         codeLens.command = {
-            title: `References`,
+            title: `🔍 Find File References`,
             command: 'findAllReferences.findFileReferences',
-            arguments: [document.uri]
+            arguments: [document.uri],
+            tooltip: 'Find all references to this file'
         };
 
+        outputChannel.appendLine(`📍 创建了 CodeLens，位置: ${topOfDocument.start.line}:${topOfDocument.start.character}`);
+        outputChannel.appendLine(`🎯 命令: ${codeLens.command.command}`);
+
         return [codeLens];
+    }
+
+    resolveCodeLens?(
+        codeLens: vscode.CodeLens,
+        token: vscode.CancellationToken
+    ): vscode.CodeLens | Thenable<vscode.CodeLens> {
+        outputChannel.appendLine(`=== CodeLens Resolve 被调用 ===`);
+        outputChannel.appendLine(`CodeLens 命令: ${codeLens.command?.command}`);
+
+        // 确保命令已设置
+        if (!codeLens.command) {
+            codeLens.command = {
+                title: `🔍 Find File References`,
+                command: 'findAllReferences.findFileReferences',
+                tooltip: 'Find all references to this file'
+            };
+            outputChannel.appendLine(`🔧 在 resolve 中设置了命令`);
+        }
+
+        return codeLens;
     }
 }
 

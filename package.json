@@ -3,7 +3,7 @@
   "icon": "images/dog.png",
   "displayName": "Wooref",
   "description": "Quickly find all references of symbols and files with intuitive hover links and CodeLens, similar to WebStorm experience",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "publisher": "Asea",
   "author": {
     "name": "Asea",
@@ -46,7 +46,8 @@
     "onLanguage:javascript",
     "onLanguage:typescriptreact",
     "onLanguage:javascriptreact",
-    "onLanguage:vue"
+    "onLanguage:vue",
+    "onStartupFinished"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -80,7 +81,6 @@
       "editor/title": [
         {
           "command": "findAllReferences.findFileReferences",
-          "when": "editorTextFocus",
           "group": "navigation"
         }
       ]
@@ -101,6 +101,16 @@
             "vue"
           ],
           "description": "List of supported language types for finding references"
+        },
+        "findAllReferences.enableCodeLens": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable CodeLens to show 'Find File References' at the top of files"
+        },
+        "findAllReferences.enableHover": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable hover links to show 'Find All References' when hovering over symbols"
         }
       }
     }
